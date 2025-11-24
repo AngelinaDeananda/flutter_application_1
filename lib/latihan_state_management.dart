@@ -8,12 +8,15 @@ class LatihanStateManagement extends StatefulWidget {
 }
 
 class _LatihanStateManagementState extends State<LatihanStateManagement> {
-  List<int> tempList = [];
+  List<Map<String, dynamic>> tempList = [];
 
-  // Tambah angka mulai dari 1
+  // Tambah item (kalimat)
   void addList() {
     setState(() {
-      tempList.add(tempList.length + 1); // SELALU MULAI DARI 1
+      tempList.add({
+        "text": "Item baru ke-${tempList.length + 1}", // kalimat
+        "favorite": false, // default bukan favorite
+      });
     });
   }
 
@@ -22,10 +25,17 @@ class _LatihanStateManagementState extends State<LatihanStateManagement> {
     setState(() {
       tempList.removeAt(index);
 
-      // Setelah hapus, reset urutan lagi agar tetap 1,2,3...
+      // perbaiki urutan kalimat
       for (int i = 0; i < tempList.length; i++) {
-        tempList[i] = i + 1;
+        tempList[i]["text"] = "Item baru ke-${i + 1}";
       }
+    });
+  }
+
+  // Toggle favorite
+  void toggleFavorite(int index) {
+    setState(() {
+      tempList[index]["favorite"] = !tempList[index]["favorite"];
     });
   }
 
@@ -47,17 +57,52 @@ class _LatihanStateManagementState extends State<LatihanStateManagement> {
           : ListView.builder(
               itemCount: tempList.length,
               itemBuilder: (context, index) {
-                int nomor = index + 1; // urutan list
+                int nomor = index + 1;
 
                 return Card(
                   child: ListTile(
                     leading: CircleAvatar(
                       child: Text(nomor.toString()),
                     ),
-                    title: Text(tempList[index].toString()), // <-- perbaikan
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => deleteList(index),
+
+                    title: Text(tempList[index]["text"]),
+
+                    // ⭐ Favorite
+                    subtitle: Row(
+                      children: [
+                        Icon(
+                          tempList[index]["favorite"]
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.amber,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(tempList[index]["favorite"]
+                            ? "Favorite"
+                            : "Tidak favorite"),
+                      ],
+                    ),
+
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Toggle Favorite
+                        IconButton(
+                          icon: Icon(
+                            tempList[index]["favorite"]
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: Colors.pink,
+                          ),
+                          onPressed: () => toggleFavorite(index),
+                        ),
+
+                        // Delete
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => deleteList(index),
+                        ),
+                      ],
                     ),
                   ),
                 );
