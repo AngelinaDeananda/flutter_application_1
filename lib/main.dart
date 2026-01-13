@@ -6,39 +6,35 @@ import 'package:flutter_application_1/pages/cubit/items_cubit.dart';
 import 'package:flutter_application_1/pages/cubit/visibility_cubit.dart';
 import 'package:flutter_application_1/pages/login_page.dart';
 // import 'package:flutter_application_1/pages/loginpage.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:go_router/go_router.dart';
 
+import './routes/router.dart';
+import './bloc/bloc.dart';
 
-void main() {
-  runApp(CounterApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const MyApp());
 }
 
-class CounterApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-  providers: [
-    BlocProvider(
-      create: (context) => CounterCubit(),
-    ),
-    BlocProvider(
-      create: (context) => ChangeColorCubit(),
-    ),
-    BlocProvider(
-      create: (context) => VisibilityCubit(),
-    ),
-    BlocProvider(
-      create: (context) => FavoriteCountCubit(),
-    ),
-    BlocProvider(
-      create: (context) => ItemsCubit(),
-    ),
-  ],
-  child: MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: Loginpage(),
-  ),
-);
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(),
+        ),
+        BlocProvider<ProductBloc>(
+          create: (context) => ProductBloc(),
+        ),
+      ],
+      child: MaterialApp.router(routerConfig: router),
+    );
   }
 }
